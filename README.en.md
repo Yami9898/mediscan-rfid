@@ -1,13 +1,13 @@
-# 🏥 eHealth — Patient record via RFID card
+# MediScan — Patient record via RFID card
 
-[🇫🇷 Français](README.md) | 🇬🇧 English
+[Français](README.md) | English
 
 Web interface (Flask) that opens a **patient's medical record by scanning their RFID card**.
 The doctor places the card on the reader → the record appears: identity, appointments, consultations, vaccines, chronic diseases, prescriptions.
 
 ---
 
-## 💳 How it works: patient card → record
+## How it works: patient card → record
 
 ```
  Patient RFID card
@@ -25,11 +25,11 @@ The doctor places the card on the reader → the record appears: identity, appoi
 4. Flask looks up the row in the `patients` table whose `id` = that UID.
 5. The patient is stored in the session → every page (appointments, record, vaccines…) uses it.
 
-> 💡 **One card = one patient.** The card UID is the patient's ID in the database.
+> **One card = one patient.** The card UID is the patient's ID in the database.
 
 ---
 
-## 🔌 Wiring the RFID reader (RC522 → Arduino Uno)
+## Wiring the RFID reader (RC522 → Arduino Uno)
 
 | RC522 | Arduino |
 |-------|---------|
@@ -39,13 +39,13 @@ The doctor places the card on the reader → the record appears: identity, appoi
 | MISO  | D12     |
 | RST   | D9      |
 | GND   | GND     |
-| 3.3V  | **3.3V** ⚠️ (not 5V) |
+| 3.3V  | **3.3V** (not 5V) |
 
 Then upload [SCAN/SCAN.ino](SCAN/SCAN.ino) with the Arduino IDE (**MFRC522** library required).
 
 ---
 
-## 🪪 Registering a new patient card
+## Registering a new patient card
 
 1. Get the card UID: open the Arduino **Serial Monitor** (9600 baud), type `SCAN`, place the card → the UID is printed.
 2. Use that UID as the patient's `id` in MySQL:
@@ -59,7 +59,7 @@ That's it: the next scan opens this patient.
 
 ---
 
-## 🚀 Setup
+## Setup
 
 **1. Database** — start MySQL (MAMP), then import [database.sql](database.sql) (tables + one demo patient):
 
@@ -90,13 +90,13 @@ python -m serial.tools.list_ports
 SERIAL_PORT=/dev/cu.usbmodemXXXX python app.py
 ```
 
-Open http://127.0.0.1:5000 → place the card → click **🛜**. ✅
+Open http://127.0.0.1:5000 → place the card → click **🛜**.
 
-> 🧪 **No Arduino?** Just run `python app.py`, type `DEMO001` in the ID field and click **✓**: the demo patient opens.
+> **No Arduino?** Just run `python app.py`, type `DEMO001` in the ID field and click **✓**: the demo patient opens.
 
 ---
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 The app's messages are in French:
 
@@ -108,7 +108,7 @@ The app's messages are in French:
 
 ---
 
-## 📁 Structure
+## Structure
 
 ```
 app.py            Flask server + API (patients, appointments, consultations, vaccines, diseases, prescriptions)
@@ -118,4 +118,4 @@ templates/        HTML pages (patient, rdv, dossier_med, examens, suivi_medical,
 static/           CSS, photos, generated prescriptions (.docx)
 ```
 
-> 🔒 Patient photos and generated prescriptions are not versioned (personal data).
+> Patient photos and generated prescriptions are not versioned (personal data).

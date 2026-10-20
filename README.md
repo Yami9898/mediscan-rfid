@@ -1,13 +1,13 @@
-# 🏥 eHealth — Dossier patient par carte RFID
+# MediScan — Dossier patient par carte RFID
 
-🇫🇷 Français | [🇬🇧 English](README.en.md)
+Français | [English](README.en.md)
 
 Interface web (Flask) qui ouvre le **dossier médical d'un patient en scannant sa carte RFID**.
 Le médecin pose la carte sur le lecteur → le dossier s'affiche : identité, rendez-vous, consultations, vaccins, maladies chroniques, ordonnances.
 
 ---
 
-## 💳 Comment ça marche : carte patient → dossier
+## Comment ça marche : carte patient → dossier
 
 ```
  Carte RFID patient
@@ -25,11 +25,11 @@ Le médecin pose la carte sur le lecteur → le dossier s'affiche : identité, r
 4. Flask cherche dans la table `patients` la ligne dont l'`id` = cet UID.
 5. Le patient est chargé en session → toutes les pages (RDV, dossier, vaccins…) l'utilisent.
 
-> 💡 **Une carte = un patient.** L'UID de la carte est l'identifiant du patient en base.
+> **Une carte = un patient.** L'UID de la carte est l'identifiant du patient en base.
 
 ---
 
-## 🔌 Branchement du lecteur RFID (RC522 → Arduino Uno)
+## Branchement du lecteur RFID (RC522 → Arduino Uno)
 
 | RC522 | Arduino |
 |-------|---------|
@@ -39,13 +39,13 @@ Le médecin pose la carte sur le lecteur → le dossier s'affiche : identité, r
 | MISO  | D12     |
 | RST   | D9      |
 | GND   | GND     |
-| 3.3V  | **3.3V** ⚠️ (pas 5V) |
+| 3.3V  | **3.3V** (pas 5V) |
 
 Puis téléversez [SCAN/SCAN.ino](SCAN/SCAN.ino) avec l'IDE Arduino (bibliothèque **MFRC522** requise).
 
 ---
 
-## 🪪 Enregistrer une nouvelle carte patient
+## Enregistrer une nouvelle carte patient
 
 1. Récupérez l'UID de la carte : ouvrez le **moniteur série** Arduino (9600 bauds), tapez `SCAN`, posez la carte → l'UID s'affiche.
 2. Utilisez cet UID comme `id` du patient dans MySQL :
@@ -59,7 +59,7 @@ C'est tout : au prochain scan, ce patient s'ouvrira.
 
 ---
 
-## 🚀 Installation
+## Installation
 
 **1. Base de données** — lancez MySQL (MAMP), puis importez [database.sql](database.sql) (tables + un patient de démo) :
 
@@ -90,13 +90,13 @@ python -m serial.tools.list_ports
 SERIAL_PORT=/dev/cu.usbmodemXXXX python app.py
 ```
 
-Ouvrez http://127.0.0.1:5000 → posez la carte → cliquez sur **🛜**. ✅
+Ouvrez http://127.0.0.1:5000 → posez la carte → cliquez sur **🛜**.
 
-> 🧪 **Pas d'Arduino ?** Lancez simplement `python app.py`, tapez `DEMO001` dans le champ ID puis cliquez sur **✓** : le patient de démo s'ouvre.
+> **Pas d'Arduino ?** Lancez simplement `python app.py`, tapez `DEMO001` dans le champ ID puis cliquez sur **✓** : le patient de démo s'ouvre.
 
 ---
 
-## 🛠️ Problèmes fréquents
+## Problèmes fréquents
 
 | Message | Solution |
 |---------|----------|
@@ -106,7 +106,7 @@ Ouvrez http://127.0.0.1:5000 → posez la carte → cliquez sur **🛜**. ✅
 
 ---
 
-## 📁 Structure
+## Structure
 
 ```
 app.py            Serveur Flask + API (patients, RDV, consultations, vaccins, maladies, ordonnances)
@@ -116,4 +116,4 @@ templates/        Pages HTML (patient, rdv, dossier_med, examens, suivi_medical,
 static/           CSS, photos, ordonnances générées (.docx)
 ```
 
-> 🔒 Les photos de patients et les ordonnances générées ne sont pas versionnées (données personnelles).
+> Les photos de patients et les ordonnances générées ne sont pas versionnées (données personnelles).
