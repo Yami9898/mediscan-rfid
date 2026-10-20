@@ -1,0 +1,14 @@
+# Environnements Python
+env/
+.venv/
+__pycache__/
+*.pyc
+
+# macOS / éditeur
+.DS_Store
+.vscode/
+
+# Données patients (ne jamais publier)
+static/ordonnances/*.docx
+static/photos/*
+!static/photos/photo.png

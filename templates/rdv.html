@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rendez-vous</title>
+    <meta charset="UTF-8">   
+    <link rel="stylesheet" href="{{ url_for('static', filename='rdv.css') }}"> 
+    <style>
+      /* Styles minimaux pour la lisibilité */
+      tr.selected { background:#eef; }
+      tr.editing input, tr.editing select { width:100%; box-sizing:border-box; }
+      .r_button { cursor:pointer; }
+    </style>
+</head>
+<body>
+    <nav class="navb">
+    
+      <div class="navbar">
+              <ul class="nav-menu">
+                  <li><a href="{{ url_for('patient') }}">Patient</a></li>
+                  <li><a href="{{ url_for('rdv') }}" id="rdv">Rendez-vous</a></li>
+                  <li><a href="{{ url_for('dossier_med') }}">Dossier médical</a></li>
+                  <li><a href="{{ url_for('examens') }}">Examens</a></li>
+              </ul>
+          </div>
+          <div class="logout">
+              <a href="login.html">Déconnexion</a>
+          </div>
+        </div>
+      
+    </nav>
+
+    <!-- Formulaire recherche : on empêche l'envoi et on utilise JS -->
+    <form method="post" action="#" onsubmit="return false;">
+        <div class="recherche_bar">
+            <div class="recherche">
+                <input type="text" id="searchInput" name="Recherche" placeholder=" 🔍  Rechercher un rendez-vous" class="recherche_PV">
+            </div>
+            <div class="add_button">
+                <button type="button" class="r_button" id="btn-add">✚</button>
+            </div>
+            <div class="edit_button">
+                <button type="button" class="r_button" id="btn-edit">✍️</button>
+            </div>
+            <div class="delete_button">
+                <button type="button" class="r_button" id="btn-delete">−</button>
+            </div>
+        </div>
+    </form>
+
+    <table id="rdv-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Lieu</th>
+                <th>Motif</th>
+                <th>Type</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Contenu injecté par JS -->
+        </tbody>
+    </table>
+
+<script>
+/* ---------- variables ---------- */
+const tbody = document.querySelector("#rdv-table tbody");
+const btnAdd = document.getElementById('btn-add');
+const btnEdit = document.getElementById('btn-edit');
+const btnDelete = document.getElementById('btn-delete');
+const searchInput = document.getElementById('searchInput');
+
+let editingRow = null;
+let isAdding = false;
+let tousLesRdv = [];
+
+/* ---------- utilitaires ---------- */
+function escapeHtml(text) {
+  if(!text) return "";
+  return String(text).replace(/&/g, "&amp;")
+                     .replace(/</g, "&lt;")
+                     .replace(/>/g, "&gt;")
+                     .replace(/"/g, "&quot;")
+                     .replace(/'/g, "&#039;");
+}
+
+function renderRows(data) {
+  // data : tableau d'objets {num_rdv, date, heure, lieu, type, type_imagerie, statut}
+  tbody.innerHTML = data.map(r => `
+    <tr data-num-rdv="${r.num_rdv}">
+      <td>${r.date || ''}</td>
+      <td>${r.heure || ''}</td>
+      <td>${escapeHtml(r.lieu || '')}</td>
+      <td>${escapeHtml(r.motif || '')}</td>
+      <td>${escapeHtml(r.type || '')}</td>
+      <td>${escapeHtml(r.statut || '')}</td>
+    </tr>
+  `).join("");
+  editingRow = null;
+  isAdding = false;
+  resetButtons();
+}
+
+/* ---------- chargement initial ---------- */
+async function loadRdv() {
+  try {
+    const res = await fetch("/api/rdv");
+    if(!res.ok) throw new Error("Erreur réseau lors du chargement des rendez-vous.");
+    const data = await res.json();
+    if (data.error) {
+      tbody.innerHTML = `<tr><td colspan="7">Erreur : ${data.error}</td></tr>`;
+      return;
+    }
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7">Aucun rendez-vous trouvé.</td></tr>`;
+      return;
+    }
+    tousLesRdv = data;
+    renderRows(tousLesRdv);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7">Erreur : ${err.message}</td></tr>`;
+  }
+}
+
+/* ---------- sélection ligne ---------- */
+tbody.addEventListener('click', e => {
+  if (editingRow) return; // interdit selection pendant édition
+  const tr = e.target.closest('tr');
+  if(!tr) return;
+  tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+  tr.classList.add('selected');
+});
+
+/* ---------- gestion boutons ---------- */
+function setEditingMode(on) {
+  if(on){
+    btnAdd.textContent = '✓';
+    btnEdit.textContent = '❌';
+    btnDelete.disabled = true;
+  } else {
+    btnAdd.textContent = '✚';
+    btnEdit.textContent = '✍️';
+    btnDelete.disabled = false;
+  }
+}
+function resetButtons(){ setEditingMode(false); }
+
+/* ---------- ADD (inline) ---------- */
+btnAdd.addEventListener('click', () => {
+  if (!editingRow) {
+    isAdding = true;
+    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+    const tr = document.createElement('tr');
+    tr.classList.add('editing');
+    tr.dataset.numRdv = ""; // pas d'ID encore
+
+    tr.innerHTML = `
+      <td><input type="date" required></td>
+      <td><input type="time" required></td>
+      <td><input type="text" required></td>
+      <td>
+        <select required>
+          <option value="consultation">Consultation</option>
+          <option value="chirurgie">Chirurgie</option>
+          <option value="Analyses médicales">Analyses médicales</option>
+          <option value="Imagerie">Imagerie</option>
+          <option value="Vaccin">Vaccin</option>
+        </select>
+      </td>
+      <td><input type="text"></td>
+      <td>
+        <select required>
+          <option value="En attente">En attente</option>
+          <option value="Annulé">Annulé</option>
+          <option value="Terminé">Terminé</option>
+        </select>
+      </td>
+    `;
+    tbody.prepend(tr);
+    editingRow = tr;
+    setEditingMode(true);
+  } else {
+    // ✓ : enregistrer
+    saveEditingRow();
+  }
+});
+
+/* ---------- EDIT (inline) ---------- */
+btnEdit.addEventListener('click', () => {
+  if (!editingRow) {
+    const selected = tbody.querySelector('tr.selected');
+    if (!selected) { alert("Sélectionnez une ligne à modifier."); return; }
+    editingRow = selected;
+    editingRow.classList.add('editing');
+    isAdding = false;
+
+    // Extraire valeurs (col0 = id)
+    const cells = editingRow.children;
+    const values = {
+      date: cells[0].textContent.trim(),
+      heure: cells[1].textContent.trim(),
+      lieu: cells[2].textContent.trim(),
+      motif: cells[3].textContent.trim(),
+      type: cells[4].textContent.trim(),
+      statut: cells[5].textContent.trim()
+    };
+
+    // s'assurer que dataset.numRdv contient l'id (préserver)
+    editingRow.dataset.numRdv = values.id || editingRow.dataset.numRdv || "";
+
+    // convertir date dd/mm/yyyy -> yyyy-mm-dd si nécessaire
+    let dateVal = values.date;
+    if (dateVal && dateVal.includes('/')) {
+      const parts = dateVal.split('/');
+      if(parts.length === 3) dateVal = `${parts[2].padStart(4,'0')}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+      else dateVal = "";
+    }
+
+    editingRow.innerHTML = `
+      <td><input type="date" value="${dateVal}" required></td>
+      <td><input type="time" value="${values.heure}" required></td>
+      <td><input type="text" value="${escapeHtml(values.lieu)}" required></td>
+      <td>
+        <select required>
+          <option value="consultation" ${values.type === "consultation" ? "selected" : ""}>Consultation</option>
+          <option value="chirurgie" ${values.type === "chirurgie" ? "selected" : ""}>Chirurgie</option>
+          <option value="Analyses médicales" ${values.type === "Analyses médicales" ? "selected" : ""}>Analyses médicales</option>
+          <option value="Imagerie" ${values.type === "Imagerie" ? "selected" : ""}>Imagerie</option>
+          <option value="Vaccin" ${values.type === "Vaccin" ? "selected" : ""}>Vaccin</option>
+        </select>
+      </td>
+      <td><input type="text" value="${escapeHtml(values.type_imagerie)}"></td>
+      <td>
+        <select required>
+          <option value="En attente" ${values.statut === "En attente" ? "selected" : ""}>En attente</option>
+          <option value="Annulé" ${values.statut === "Annulé" ? "selected" : ""}>Annulé</option>
+          <option value="Terminé" ${values.statut === "Terminé" ? "selected" : ""}>Terminé</option>
+        </select>
+      </td>
+    `;
+
+    editingRow.dataset.numRdv = values.id || editingRow.dataset.numRdv || "";
+    setEditingMode(true);
+
+  } else {
+    // ❌ annuler édition
+    editingRow = null;
+    isAdding = false;
+    setEditingMode(false);
+    loadRdv();
+  }
+});
+
+/* ---------- DELETE ---------- */
+btnDelete.addEventListener('click', async () => {
+  if(editingRow){ alert("Finissez l'édition avant de supprimer."); return; }
+  const selected = tbody.querySelector('tr.selected');
+  if(!selected) { alert("Sélectionnez une ligne à supprimer."); return; }
+  if(!confirm("Voulez-vous vraiment supprimer ce rendez-vous ?")) return;
+
+  const num_rdv = selected.dataset.numRdv;
+  if(!num_rdv) { alert("Impossible de supprimer un rendez-vous non enregistré."); return; }
+
+  try {
+    const res = await fetch(`/api/rdv/${num_rdv}`, { method: 'DELETE' });
+    const data = await res.json();
+    if(data.error) alert(data.error);
+    else {
+      alert(data.message);
+      loadRdv();
+    }
+  } catch (err) { alert("Erreur : " + err); }
+});
+
+/* ---------- SAVE (POST ou PUT) ---------- */
+async function saveEditingRow(){
+  if(!editingRow) return;
+  const inputs = editingRow.querySelectorAll('input, select');
+  for(let i=0;i<inputs.length;i++){
+    if(!inputs[i].checkValidity()){
+      alert("Veuillez remplir correctement tous les champs obligatoires.");
+      inputs[i].focus();
+      return;
+    }
+  }
+
+  const body = {
+    date: inputs[0].value,
+    heure: inputs[1].value,
+    lieu: inputs[2].value.trim(),
+    motif: inputs[3].value,
+    type: inputs[4].value.trim(),
+    statut: inputs[5].value.trim()
+  };
+
+  const num_rdv = editingRow.dataset.numRdv || "";
+  const method = num_rdv ? 'PUT' : 'POST';
+  const url = num_rdv ? `/api/rdv/${num_rdv}` : '/api/rdv';
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if(data.error) alert(data.error);
+    else {
+      alert(data.message);
+      editingRow = null;
+      isAdding = false;
+      setEditingMode(false);
+      loadRdv();
+    }
+  } catch (err) { alert("Erreur : " + err); }
+}
+
+/* ---------- RECHERCHE CÔTÉ CLIENT ---------- */
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase();
+  const filtres = tousLesRdv.filter(r => 
+    Object.values(r).some(val => String(val).toLowerCase().includes(q))
+  );
+  renderRows(filtres);
+});
+
+/* ---------- initial load ---------- */
+document.addEventListener("DOMContentLoaded", loadRdv);
+</script>
+</body>
+</html>
+

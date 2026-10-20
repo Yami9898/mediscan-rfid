@@ -1,0 +1,181 @@
+html , body{
+    min-width: 1200px;
+    overflow-x : auto ; /* pour éviter le débordement horizontal */
+}
+
+
+.navb{
+    position: fixed;
+    top: 20px;                     /* distance depuis le haut */
+    left: 50%;
+    transform: translateX(-50%);   /* centre le groupe */
+    display: flex;                 /* enfants côte‑à‑côte */
+    gap: 20px;                     /* espace entre navbar et bulle */
+    align-items: center;           /* aligne verticalement */
+    z-index: 1000;
+    
+}
+.navbar{
+    
+    padding : 10px 20px;
+    border-radius : 20px;
+    width: 570px; 
+    max-width : 90%;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+    
+  
+    
+ 
+}
+.logout {
+    
+    padding : 10px 20px;
+    border-radius : 20px;
+    width: 83px;
+    max-width : 90%;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+    
+}
+
+.nav-menu{
+    list-style: none;
+    display : flex;
+    width : 100%;
+    justify-content: center;
+    padding :0;
+    margin : 0;
+    gap :10px;
+
+}
+
+.nav-menu li a {
+    color : rgba(61, 57, 57, 0.995);
+    text-align : center;
+    text-decoration: none;
+    white-space : nowrap;
+    padding : 8px 40px;
+    border-radius : 20px;
+    
+}
+
+.logout a {
+    color :rgba(61, 57, 57, 0.995);
+    text-align : left;
+    text-decoration: none;
+ 
+}
+
+
+#rdv {
+    background-color: rgba(255, 0, 0, 0.7); /* Couleur de fond du bouton */
+    color: white; /* Couleur du texte */
+    border: none; /* Pas de bordure */
+    cursor: pointer; /* Curseur en main pour indiquer que c'est cliquable */
+    transition: background-color 0.3s; /* Transition douce pour le changement de couleur */
+    padding : 8px;
+    padding-left : 20px;
+    padding-right : 20px;
+    font-weight : bold;
+}
+.nav-menu li a:hover {
+    background-color : rgba(194, 169, 169, 0.117);
+}
+body {
+    background-color : white;
+}
+
+.recherche_bar {
+    position : fixed;
+    bottom : 50px;
+    left : 50%;
+    transform: translateX(-50%);   /* centre le groupe */
+    display : flex;
+    gap: 10px;
+}
+
+.recherche {
+    border-radius : 20px;
+    padding : 10px 20px;
+    width : 500px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+
+}
+.recherche_PV {
+    width: 500px;
+    border :none;
+    font-size : 16px;
+    background-color: #f0f0f000;
+    
+}
+
+
+.add_button {
+    border-radius : 20px;
+    padding : 10px 10px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+}
+
+.edit_button {
+    border-radius : 20px;
+    padding : 10px 10px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+}
+
+.delete_button {
+    border-radius : 20px;
+    padding : 10px 10px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+}
+.r_button {
+    border : none;
+    background-color: rgba(249, 246, 246, 0);
+    font-size : 16px;
+}
+
+table {
+    margin-top : 120px;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+    
+}
+
+td , th , tr {
+    padding : 30px;
+    text-align: center;
+}
+th {
+    background-color : rgba(194, 169, 169, 0.37);
+    border-collapse : collapse;
+    color : black;
+    font-weight : bold;
+}
+
+tr.selected {
+  background-color: #cce5ff;
+}
+

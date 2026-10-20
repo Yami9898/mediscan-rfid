@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Examens</title>
+        <meta charset=""UTF-8">   
+        <link rel="stylesheet" href="{{ url_for('static', filename='examens.css') }}"> 
+    </head>
+    <body>
+        <nav class="navb">
+            <div class="navbar">
+                <ul class ="nav-menu">
+                    <li><a href="{{ url_for('patient') }}" >Patient</a></li>
+                    <li><a href="{{ url_for('rdv') }}">Rendez-vous</a></li>
+                    <li><a href="{{ url_for('dossier_med') }}">Dossier médical</a></li>
+                    <li><a href="{{ url_for('examens') }}" id = 'examens'>Examens</a></li>
+                
+                </ul>
+            </div>
+            <div class="logout">
+                <a href ="login.html" >Déconnexion</a>
+            <div>
+        </nav>
+    </body>
+</html>

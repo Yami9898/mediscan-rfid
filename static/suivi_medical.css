@@ -1,0 +1,240 @@
+html , body{
+    min-width: 1200px;
+    overflow-x : auto ; /* pour éviter le débordement horizontal */
+    min-height: 1200px;
+    overflow-y : auto ;
+}
+
+
+
+.navb{
+    position: fixed;
+    top: 20px;                     /* distance depuis le haut */
+    left: 50%;
+    transform: translateX(-50%);   /* centre le groupe */
+    display: flex;                 /* enfants côte‑à‑côte */
+    gap: 20px;                     /* espace entre navbar et bulle */
+    align-items: center;           /* aligne verticalement */
+    z-index: 1000;
+    
+}
+.navbar{
+    
+    padding : 10px 20px;
+    border-radius : 20px;
+    width: 570px; 
+    max-width : 90%;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+    
+  
+    
+ 
+}
+.logout {
+    
+    padding : 10px 20px;
+    border-radius : 20px;
+    width: 83px;
+    max-width : 90%;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+    
+}
+
+.nav-menu{
+    list-style: none;
+    display : flex;
+    width : 100%;
+    justify-content: center;
+    padding :0;
+    margin : 0;
+    gap :10px;
+
+}
+
+.nav-menu li a {
+    color : rgba(61, 57, 57, 0.995);
+    text-align : center;
+    text-decoration: none;
+    white-space : nowrap;
+    padding : 8px 40px;
+    border-radius : 20px;
+    
+    
+    
+}
+
+.logout a {
+    color :rgba(61, 57, 57, 0.995);
+    text-align : left;
+    text-decoration: none;
+ 
+}
+
+
+#dossier {
+    background-color: rgba(255, 0, 0, 0.7); /* Couleur de fond du bouton */
+    color: white; /* Couleur du texte */
+    border: none; /* Pas de bordure */
+    cursor: pointer; /* Curseur en main pour indiquer que c'est cliquable */
+    transition: background-color 0.3s; /* Transition douce pour le changement de couleur */
+    padding : 8px;
+    padding-left : 20px;
+    padding-right : 20px;
+    font-weight : bold;
+}
+
+.navbar li a:hover {
+    background-color : rgba(194, 169, 169, 0.117);
+}
+
+body {
+    background-color : white;
+}
+
+.menu{
+    margin-top : 225px;
+    position : fixed;
+    border-right:  2px solid #d6d9db;
+    padding-right: 10px;
+    height: 317px;
+    
+}
+
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0; 
+}
+.menu-list li {
+    margin-bottom: 100px;
+    width : 150px;
+    padding: 2px 0px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    
+    
+}
+.menu-list li a {
+    display : block;
+    color :rgba(61, 57, 57, 0.995);
+    background-color: rgba(255, 255, 255, 0);
+    padding: 8px 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    white-space: nowrap; /* pour ne pas revenir à la ligne */
+    transition: background-color 0.3s; /* la couleur va transitionner progressivement pendant 0.3 seconde.*/
+}
+.menu-list li:hover {
+  background-color : rgba(194, 169, 169, 0.117);
+}
+
+
+#consultations{ margin-left :21px;}
+#suivi_medical{ 
+    background-color : rgba(194, 169, 169, 0.37);
+    padding : 8px 28px;
+    color : red;
+    font-weight : bold;
+}
+#vaccins{ margin-left :38px;}
+
+.titre {
+    margin-top : 120px;
+    margin-left : 300px;
+}
+table {
+    
+    border-collapse: collapse;
+    border-spacing : 1px, 1px;
+    
+}
+
+#en_cours_table{
+    margin-left : 300px;
+}
+
+#chroniques_table{
+    margin-left : 250px;
+}
+
+td , th , tr {
+    padding : 30px;
+    text-align: center;
+}
+th {
+    background-color : rgba(194, 169, 169, 0.37);
+    border-collapse : collapse;
+    color : black;
+    font-weight : bold;
+}
+
+
+.btn-terminer {
+    padding: 5px 10px;
+    background-color: #9a4e4ea1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-terminer:hover {
+    background-color: #e51515;
+}
+
+#en_cours_table td:nth-child(3) {
+        white-space: pre-line;
+    }
+
+.buttons {
+    position : fixed;
+    bottom : 100px;
+    left : 25px;
+    display : flex;
+    gap: 10px;
+}
+
+.add_button {
+    border-radius : 20px;
+    padding : 10px 10px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+}
+
+.edit_button {
+    border-radius : 20px;
+    padding : 10px 10px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+}
+
+.delete_button {
+    border-radius : 20px;
+    padding : 10px 10px;
+    background: rgba(255, 255, 255, 0.662); /* Couleur de fond avec transparence */
+    backdrop-filter: blur(3px); /* Flou d’arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0); /* Bordure semi-transparente */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    display: flex; /* Pour aligner les éléments à l'intérieur */
+}
+.r_button {
+    border : none;
+    background-color: rgba(249, 246, 246, 0);
+    font-size : 16px;
+}

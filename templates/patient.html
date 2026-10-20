@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Patient</title>
+        <meta charset="UTF-8">   
+        <link rel="stylesheet" href="{{ url_for('static', filename='patient.css') }}">
+
+    </head>
+    <body>
+        <nav class="navb">
+            <div class="navbar">
+                <ul class ="nav-menu">
+                    <li><a href="{{ url_for('patient') }}" id="patient">Patient</a></li>
+                    <li><a href="{{ url_for('rdv') }}">Rendez-vous</a></li>
+                    <li><a href="{{ url_for('dossier_med') }}">Dossier médical</a></li>
+                    <li><a href="{{ url_for('examens') }}">Examens</a></li>
+                </ul>
+            </div>
+            <div class="logout">
+                <a href ="login.html" >Déconnexion</a>
+            </div>
+        </nav>
+
+        <div bar_id class ='bar_id'>
+            <div class ='enter_id'>
+                <input type="Text" name="ID" placeholder = "Entrer l'ID d'un patient ou scanner sa carte" class = 'id_patient' >
+            </div>
+            <div class ='check_id'>
+                <button onclick="chargerPatient()" class ='id_button'> ✓ </button>
+            </div>
+            <div class ='scan_card'>
+                <button onclick="scanCard()" class ='id_button'> 🛜 </button>
+            </div>
+        </div>
+
+        <div class ='patient_info'>
+
+            <div class ='photo_patient'>
+                <img src="{{ url_for('static', filename=patient.photo_url) }}" alt="Photo du patient">
+                <p id="identifiant"> <strong>ID :</strong> <span id='id'></span></p>
+            </div>
+
+
+            <div class ='info_patient'>
+                <p id="name"><span id='civilite'></span> <span id="nom"></span> <span id="prenom"></span> </p>
+
+                <div class="general_info">                       
+                    <div class="first_info">
+                        <p id="one"> <strong>Date de naissance :</strong> <span id="date_naissance"></span></p>                        
+                        <p id="one"> <strong>Genre :</strong> <span id='sexe'></span></p>
+                        <p id="one"> <strong>Nationalité :</strong>  <span id='nationalite'></span></p>
+                        <p id="one"> <strong>Ville :</strong> <span id="ville"></span></p>
+                        <p id="one"> <strong>Adresse :</strong> <span id='adresse'></span></p>
+                    </div>
+                    <div class="second_info">
+                        <p id="txo"> <strong>Téléphone :</strong> <span id='telephone'></span></p>
+                        <p id="two"> <strong>E-mail :</strong> <span id="email"></span></p>
+                        <p id="two"> <strong>N°CIN :</strong> <span id='num_cin'></span></p>
+                        <p id="two"> <Strong>Prise en charge :</Strong> <span id='pec'></span></p>
+                        
+                    </div>
+                </div>
+            </div>
+    
+    <script>
+  // Fonction pour remplir les champs avec les données reçues
+  function remplirChamps(data) {
+    document.getElementById("id").textContent = data.id || '...';
+    document.getElementById("civilite").textContent = data.civilite || '...';
+    document.getElementById("nom").textContent = data.nom || '...';
+    document.getElementById("prenom").textContent = data.prenom || '...';
+    document.getElementById("date_naissance").textContent = data.date_naissance || '...';
+    document.getElementById("sexe").textContent = data.sexe || '...';
+    document.getElementById("nationalite").textContent = data.nationalite || '...';
+    document.getElementById("ville").textContent = data.ville || '...';
+    document.getElementById("adresse").textContent = data.adresse || '...';
+    document.getElementById("telephone").textContent = data.telephone || '...';
+    document.getElementById("email").textContent = data.email || '...';
+    document.getElementById("num_cin").textContent = data.num_cin || '...';
+    document.getElementById("pec").textContent = data.prise_en_charge || '...';
+
+    // Photo
+    const photo = document.querySelector(".photo_patient img");
+    if (data.photo_url) {
+      photo.src = "/" + data.photo_url;  // si photo_url = "static/photos/xxx.jpg"
+
+    }
+  }
+
+  // Fonction pour charger un patient en session
+  function chargerPatient() {
+    const input = document.querySelector('.id_patient');
+    const id = input.value.trim();
+
+    fetch("/get_patient", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id: id })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+         // Affiche l'erreur dans le champ input
+            input.value = "";
+            input.placeholder = data.error;  // message dans la barre
+            input.classList.add("error");    // optionnel : ajouter une classe CSS pour couleur rouge
+            return;
+        }
+        input.placeholder = "Entrer l'ID d'un patient ou scanner sa carte"; // reset placeholder
+        input.classList.remove("error");      // supprime la classe d'erreur
+        remplirChamps(data);
+    })
+    .catch(error => {
+        input.value = "";
+        input.placeholder = "Erreur de connexion au serveur";
+        input.classList.add("error");
+        console.error("Erreur lors de la récupération :", error);
+    });
+  }
+
+  // Au chargement de la page, on vérifie si un patient est déjà en session
+  window.onload = function() {
+    fetch("/get_patient_session")
+      .then(response => response.json())
+      .then(data => {
+        if (!data.error) {
+          remplirChamps(data);
+        }
+      })
+      .catch(error => console.error("Erreur lors de la récupération du patient en session :", error));
+  }
+
+  function scanCard() {
+    const input = document.querySelector('.id_patient');
+  fetch("/scan_card", { method: "POST" })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        // Affiche l'erreur dans le champ input
+        input.value = "";
+        input.placeholder = data.error;
+        input.classList.add("error");
+                
+        return;
+      }
+      input.placeholder = "Entrer l'ID d'un patient ou scanner sa carte"; // reset placeholder
+      input.classList.remove("error");
+      
+
+      if (data.status === "ok" && data.patient) {
+        remplirChamps(data.patient);
+      }
+    })
+    .catch(error => {
+      input.value = "";
+      input.placeholder = "Erreur de connexion au serveur";
+      input.classList.add("error");
+      console.error("Erreur lors du scan de la carte :", error);
+    });
+}
+
+</script>
+</body>
+</html>
+
+
+
+
+

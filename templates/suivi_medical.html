@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Suivi Médical</title>
+        <meta charset="UTF-8">   
+        <link rel="stylesheet" href="{{ url_for('static', filename='suivi_medical.css') }}">  
+    </head>
+    <body>
+        <nav class="navb">
+            
+                <div class="navbar">
+                    <ul class ="nav-menu">
+                        <li><a href="{{ url_for('patient') }}" >Patient</a></li>
+                        <li><a href="{{ url_for('rdv') }}">Rendez-vous</a></li>
+                        <li><a href="{{ url_for('dossier_med') }}" id = 'dossier'>Dossier médical</a></li>
+                        <li><a href="{{ url_for('examens') }}">Examens</a></li>
+                        
+
+                    </ul>
+                </div>
+                <div class="logout">
+                    <a href ="login.html" >Déconnexion</a>
+                <div>
+            
+        </nav>
+
+        <menu class="menu">
+            <ul class="menu-list">
+                <li><a href="{{ url_for('dossier_med') }}" id = "consultations">Consultations</a></li>
+                <li><a href="{{ url_for('suivi_medical') }}" id = "suivi_medical">Suivi Médical</a></li>
+                <li><a href="{{ url_for('vaccins') }}" id = "vaccins">Vaccins</a></li>
+            </ul>
+        </menu>
+
+        <h2 class="titre">Maladies aigues en cours</h2>
+        <table id="en_cours_table">
+            <thead>
+                <tr>
+                    
+                    <th>Maladie</th>
+                    <th>Date de diagnostique</th>
+                    <th>Traitement</th>
+                    <th>PV</th>
+                    <th>statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Contenu injecté par JS -->
+            </tbody>
+
+             <form method="post" action="#" onsubmit="return false;">
+        <div class="buttons">
+            <div class="add_button">
+                <button type="button" class="r_button" id="btn-add">✚</button>
+            </div>
+            <div class="edit_button">
+                <button type="button" class="r_button" id="btn-edit">✍️</button>
+            </div>
+            <div class="delete_button">
+                <button type="button" class="r_button" id="btn-delete">−</button>
+            </div>
+        </div>
+    </form>
+
+        </table>
+        <h2 class="titre">Maladies chroniques</h2>
+        <table id="chroniques_table">
+            <thead>
+                <tr>
+                    
+                    <th>Maladie</th>
+                    <th>Type</th>
+                    <th>Historique des traitements</th>
+                    <th>Avancement de la maladie</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>  
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Contenu injecté par JS -->
+            </tbody>
+        </table>
+
+   <script>
+    async function loadConsultations() {
+        const tbody = document.querySelector('#en_cours_table tbody');
+        try {
+            const res = await fetch("/api/consultations_en_cours");
+            if (!res.ok) throw new Error("Erreur réseau lors du chargement des consultations.");
+            const data = await res.json();
+            if (data.error) {
+                tbody.innerHTML = `<tr><td colspan="4">Erreur : ${data.error}</td></tr>`;
+                return;
+            }
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4">Aucune consultation en cours trouvée.</td></tr>`;
+                return;
+            }
+            renderConsultationRows(data);
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="4">Erreur : ${err.message}</td></tr>`;
+        }
+    }
+    function renderConsultationRows(data) {
+        const tbody = document.querySelector('#en_cours_table tbody');
+        tbody.innerHTML = data.map(c => `
+            <tr data-num-consultation="${c.num_consultation}">
+                <td>${escapeHtml(c.maladie || '')}</td>
+                <td>${c.date || ''}</td>
+                <td>${formatTextWithNewlines(c.traitement || '')}</td>
+                <td>${escapeHtml(c.pv || '')}</td>
+            
+                <td>
+                    ${c.statut === 'en cours' ? 
+                       `<button class="btn-terminer" onclick="updateStatut(${c.num_consultation}, 'terminé')">
+                            Terminer
+                        </button>` : 
+                        '<span>Terminé</span>'
+                    }
+                </td>
+            </tr>
+        `).join("");
+    }
+    function escapeHtml(unsafe) {
+         return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function formatTextWithNewlines(text) {
+        return escapeHtml(text).replace(/\n/g, '<br>');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadConsultations);
+
+
+    async function updateStatut(num_consultation, newStatut) {
+    try {
+        const response = await fetch('/api/update_statut', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: num_consultation,
+                new_statut: newStatut
+            })
+        });
+        
+        const result = await response.json();
+        if (result.error) throw new Error(result.error);
+        
+        // Recharger les données après mise à jour
+        await loadConsultations();
+    } catch (err) {
+        alert("Erreur lors de la mise à jour: " + err.message);
+    }
+}
+
+async function loadMaladiesChroniques() {
+    const tbody = document.querySelector('#chroniques_table tbody');
+    try {
+        const res = await fetch("/api/maladies_chroniques");
+        if (!res.ok) throw new Error("Erreur réseau lors du chargement des maladies chroniques.");
+        const data = await res.json();
+        if (data.error) {
+            tbody.innerHTML = `<tr><td colspan="6">Erreur : ${data.error}</td></tr>`;
+            return;
+        }
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6">Aucune maladie chronique trouvée.</td></tr>`;
+            return;
+        }
+        renderMaladieRows(data);
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6">Erreur : ${err.message}</td></tr>`;
+    }
+}
+
+
+function renderMaladieRows(data) {
+    const tbody = document.querySelector('#chroniques_table tbody');
+    tbody.innerHTML = data.map(m => `
+        <tr data-num-maladie="${m.num_maladie}">
+            <td>${escapeHtml(m.maladie || '')}</td>
+            <td>${escapeHtml(m.type || '')}</td>
+            <td>${formatTextWithNewlines(m.historique_trait || '')}</td>
+            <td>${formatTextWithNewlines(m.avancement || '')}</td>
+            <td>${m.date_debut || ''}</td>
+            <td>${m.date_fin || ''}</td>
+        </tr>
+    `).join("");
+}
+
+/* ---------- variables ---------- */
+const tbodyChroniques = document.querySelector("#chroniques_table tbody");
+const btnAdd = document.getElementById('btn-add');
+const btnEdit = document.getElementById('btn-edit');
+const btnDelete = document.getElementById('btn-delete');
+
+let editingRow = null;
+let isAdding = false;
+
+/* ---------- gestion boutons ---------- */
+function setEditingMode(on) {
+    if (on) {
+        btnAdd.textContent = '✓';
+        btnEdit.textContent = '❌';
+        btnDelete.disabled = true;
+    } else {
+        btnAdd.textContent = '✚';
+        btnEdit.textContent = '✍️';
+        btnDelete.disabled = false;
+    }
+}
+
+/* ---------- ADD (inline) ---------- */
+btnAdd.addEventListener('click', () => {
+    if (!editingRow) {
+        isAdding = true;
+        const tr = document.createElement('tr');
+        tr.classList.add('editing');
+        tr.dataset.numMaladie = ""; // pas d'ID encore
+
+        tr.innerHTML = `
+            <td><input type="text" placeholder="Maladie" required></td>
+            <td>
+                <select required>
+                    <option value="Chronique">Chronique</option>
+                    <option value="Allergie">Allergie</option>
+                    <option value="Cancer">Cancer</option>
+                    <option value="Auto-immune rare">Auto-immune rare</option>
+          
+                </select>
+            </td>
+            <td><textarea placeholder="Historique des traitements" required></textarea></td>
+            <td><textarea placeholder="Avancemant" required></textarea></td>
+            <td><input type="date" required></td>
+            <td><input type="date" ></td>
+        `;
+        tbodyChroniques.prepend(tr);
+        editingRow = tr;
+        setEditingMode(true);
+    } else {
+        // ✓ : enregistrer
+        saveEditingRow();
+    }
+});
+
+/* ---------- EDIT (inline) ---------- */
+btnEdit.addEventListener('click', () => {
+    if (!editingRow) {
+        const selected = tbodyChroniques.querySelector('tr.selected');
+        if (!selected) { alert("Sélectionnez une ligne à modifier."); return; }
+        editingRow = selected;
+        editingRow.classList.add('editing');
+        isAdding = false;
+
+        // Extraire valeurs
+        const cells = editingRow.children;
+        const values = {
+            maladie: cells[0].textContent.trim(),
+            type: cells[1].textContent.trim(),
+            historique_trait: cells[2].textContent.trim(),
+            avancement: cells[3].textContent.trim(),
+            date_debut: cells[4].textContent.trim(),
+            date_fin: cells[5].textContent.trim()
+        };
+
+        editingRow.innerHTML = `
+            <td><input type="text" value="${escapeHtml(values.maladie)}" required></td>
+            <td>
+                <select required>
+                    <option value="Chronique" ${values.type === "Chronique" ? "selected" : ""}>Chronique</option>
+                    <option value="Allergie" ${values.type === "Allergie" ? "selected" : ""}>Allergie</option>
+                    <option value="Cancer" ${values.type === "Cancer" ? "selected" : ""}>Cancer</option>
+                    <option value="Auto-immune rare" ${values.type === "Auto-immune rare" ? "selected" : ""}>Auto-immune rare</option>
+                 </select>
+            </td>
+            <td><textarea required>${escapeHtml(values.historique_trait)}</textarea></td>
+            <td><textarea required>${escapeHtml(values.avancement)}</textarea></td>
+            <td><input type="date" value="${values.date_debut}" required></td>
+            <td><input type="date" value="${values.date_fin}"></td>
+        `;
+
+        editingRow.dataset.numMaladie = selected.dataset.numMaladie; // Préserver l'ID
+        setEditingMode(true);
+    } else {
+        // ❌ annuler édition
+        editingRow = null;
+        isAdding = false;
+        setEditingMode(false);
+        loadMaladiesChroniques(); // Recharger les maladies
+    }
+});
+
+/* ---------- DELETE ---------- */
+btnDelete.addEventListener('click', async () => {
+    if (editingRow) { alert("Finissez l'édition avant de supprimer."); return; }
+    const selected = tbodyChroniques.querySelector('tr.selected');
+    if (!selected) { alert("Sélectionnez une ligne à supprimer."); return; }
+    if (!confirm("Voulez-vous vraiment supprimer cette maladie ?")) return;
+
+    const num_maladie = selected.dataset.numMaladie;
+    if (!num_maladie) { alert("Impossible de supprimer une maladie non enregistrée."); return; }
+
+    try {
+        const res = await fetch(`/api/maladies/${num_maladie}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.error) alert(data.error);
+        else {
+            alert(data.message);
+            loadMaladiesChroniques(); // Recharger les maladies
+        }
+    } catch (err) { alert("Erreur : " + err); }
+});
+
+/* ---------- SAVE (POST ou PUT) ---------- */
+async function saveEditingRow() {
+    if (!editingRow) return;
+    const inputs = editingRow.querySelectorAll('input, textarea');
+    for (let i = 0; i < inputs.length; i++) {
+        if (!inputs[i].checkValidity()) {
+            alert("Veuillez remplir correctement tous les champs obligatoires.");
+            inputs[i].focus();
+            return;
+        }
+    }
+
+    const body = {
+        maladie: inputs[0].value.trim(),
+        type: inputs[1].value.trim(),
+        historique_trait: inputs[2].value.trim(),
+        avancement: inputs[3].value.trim(),
+        date_debut: inputs[4].value,
+        date_fin: inputs[5].value
+    };
+
+    const num_maladie = editingRow.dataset.numMaladie || "";
+    const method = num_maladie ? 'PUT' : 'POST';
+    const url = num_maladie ? `/api/maladies/${num_maladie}` : '/api/maladies';
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.error) alert(data.error);
+        else {
+            alert(data.message);
+            editingRow = null;
+            isAdding = false;
+            setEditingMode(false);
+            loadMaladiesChroniques(); // Recharger les maladies
+        }
+    } catch (err) { alert("Erreur : " + err); }
+}
+
+/* ---------- sélection ligne ---------- */
+tbodyChroniques.addEventListener('click', e => {
+    if (editingRow) return; // interdit selection pendant édition
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+    tbodyChroniques.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+    tr.classList.add('selected');
+});
+
+
+
+/* ---------- initial load ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+    loadConsultations();
+    loadMaladiesChroniques(); // AJOUT ÉCRIT ICI - Chargement initial des maladies chroniques
+});
+
+
+</script>
+
+
+</body>
+</html>
