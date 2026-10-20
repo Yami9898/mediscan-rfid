@@ -61,8 +61,14 @@ That's it: the next scan opens this patient.
 
 ## 🚀 Setup
 
-**1. Database** — MySQL (MAMP) with an `ehealth` database.
-Defaults in `app.py`: `localhost:8889`, user `root` / `root`.
+**1. Database** — start MySQL (MAMP), then import [database.sql](database.sql) (tables + one demo patient):
+
+```bash
+mysql -h 127.0.0.1 -P 8889 -u root -p < database.sql
+```
+
+Or in phpMyAdmin: **Import** tab → `database.sql`.
+Default connection: `localhost:8889`, `root` / `root` (MAMP). Otherwise set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`.
 
 **2. Python**
 
@@ -78,19 +84,15 @@ pip install -r requirements.txt
 python -m serial.tools.list_ports
 ```
 
-and set it in `app.py`:
-
-```python
-SERIAL_PORT = "/dev/cu.usbmodem11401"   # adjust
-```
-
-**4. Run**
+**4. Run** (with the port you found)
 
 ```bash
-python app.py
+SERIAL_PORT=/dev/cu.usbmodemXXXX python app.py
 ```
 
 Open http://127.0.0.1:5000 → place the card → click **🛜**. ✅
+
+> 🧪 **No Arduino?** Just run `python app.py`, type `DEMO001` in the ID field and click **✓**: the demo patient opens.
 
 ---
 
@@ -111,6 +113,7 @@ The app's messages are in French:
 ```
 app.py            Flask server + API (patients, appointments, consultations, vaccines, diseases, prescriptions)
 SCAN/SCAN.ino     Arduino code for the RFID reader
+database.sql      MySQL tables + demo patient
 templates/        HTML pages (patient, rdv, dossier_med, examens, suivi_medical, vaccins)
 static/           CSS, photos, generated prescriptions (.docx)
 ```

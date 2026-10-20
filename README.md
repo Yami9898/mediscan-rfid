@@ -61,8 +61,14 @@ C'est tout : au prochain scan, ce patient s'ouvrira.
 
 ## 🚀 Installation
 
-**1. Base de données** — MySQL (MAMP) avec une base `ehealth`.
-Paramètres par défaut dans `app.py` : `localhost:8889`, utilisateur `root` / `root`.
+**1. Base de données** — lancez MySQL (MAMP), puis importez [database.sql](database.sql) (tables + un patient de démo) :
+
+```bash
+mysql -h 127.0.0.1 -P 8889 -u root -p < database.sql
+```
+
+Ou dans phpMyAdmin : onglet **Importer** → `database.sql`.
+Connexion par défaut : `localhost:8889`, `root` / `root` (MAMP). Sinon, définissez `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`.
 
 **2. Python**
 
@@ -78,19 +84,15 @@ pip install -r requirements.txt
 python -m serial.tools.list_ports
 ```
 
-et mettez-le dans `app.py` :
-
-```python
-SERIAL_PORT = "/dev/cu.usbmodem11401"   # à adapter
-```
-
-**4. Lancer**
+**4. Lancer** (en indiquant le port trouvé)
 
 ```bash
-python app.py
+SERIAL_PORT=/dev/cu.usbmodemXXXX python app.py
 ```
 
 Ouvrez http://127.0.0.1:5000 → posez la carte → cliquez sur **🛜**. ✅
+
+> 🧪 **Pas d'Arduino ?** Lancez simplement `python app.py`, tapez `DEMO001` dans le champ ID puis cliquez sur **✓** : le patient de démo s'ouvre.
 
 ---
 
@@ -109,6 +111,7 @@ Ouvrez http://127.0.0.1:5000 → posez la carte → cliquez sur **🛜**. ✅
 ```
 app.py            Serveur Flask + API (patients, RDV, consultations, vaccins, maladies, ordonnances)
 SCAN/SCAN.ino     Code Arduino du lecteur RFID
+database.sql      Tables MySQL + patient de démo
 templates/        Pages HTML (patient, rdv, dossier_med, examens, suivi_medical, vaccins)
 static/           CSS, photos, ordonnances générées (.docx)
 ```
