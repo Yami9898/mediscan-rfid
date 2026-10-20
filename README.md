@@ -1,5 +1,7 @@
 # 🏥 eHealth — Dossier patient par carte RFID
 
+🇫🇷 Français | [🇬🇧 English](README.en.md)
+
 Interface web (Flask) qui ouvre le **dossier médical d'un patient en scannant sa carte RFID**.
 Le médecin pose la carte sur le lecteur → le dossier s'affiche : identité, rendez-vous, consultations, vaccins, maladies chroniques, ordonnances.
 
